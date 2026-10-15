@@ -1,167 +1,42 @@
-<!DOCTYPE html>
-<html lang="ur" dir="rtl">
+<!doctype html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ shop.name }} - مجموعہ جات</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .navbar-brand { font-size: 1.8rem; font-weight: bold; color: #d4af37 !important; }
-        .hero-section { background: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?w=1200&q=80') center/cover; color: #fff; padding: 60px 0; text-align: center; }
-        .collection-tabs { margin-top: -25px; position: relative; z-index: 10; }
-        .collection-btn { font-weight: bold; padding: 12px 20px; border-radius: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin: 5px; }
-        .product-card { border: none; border-radius: 12px; transition: transform 0.3s; background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .product-card:hover { transform: translateY(-5px); }
-        .product-card img { height: 200px; object-fit: cover; border-top-left-radius: 12px; border-top-right-radius: 12px; }
-        .price-display { color: #d4af37; font-size: 1.2rem; font-weight: bold; }
-        footer { background-color: #1a1a1a; color: #ccc; padding: 30px 0; }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore premium Rava perfumes, oud, fresh and floral fragrances.">
+  <title>{{ brand }} | Signature Fragrances</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="/"><i class="fa-solid fa-spray-can-sparkles"></i> {{ shop.name }}</a>
-            <span class="text-warning navbar-text small"><i class="fa-solid fa-truck"></i> ڈلیوری: صرف خیبر پختونخواہ (کے پی کے) | پہلے ایڈوانس پیمنٹ (EasyPaisa)</span>
-        </div>
-    </nav>
-
-    <section class="hero-section">
-        <div class="container">
-            <h1 class="display-5 fw-bold">{{ shop.name }} مجموعہ جات</h1>
-            <p class="lead">اپنے پسندیدہ برانڈ کا انتخاب کریں اور مختلف سائز (10ml سے 100ml) میں منگوائیں۔</p>
-        </div>
-    </section>
-
-    <!-- Collection Switcher Tabs -->
-    <div class="container collection-tabs text-center mb-5">
-        <div class="p-3 bg-white rounded shadow-sm d-inline-block">
-            {% for key, col in collections.items() %}
-            <a href="/?col={{ key }}" class="btn {% if active_col == key %}btn-dark{% else %}btn-outline-dark{% endif %} collection-btn">
-                {{ col.name }}
-            </a>
-            {% endfor %}
-        </div>
+<header class="nav wrap">
+  <a href="{{ url_for('home') }}" class="logo">RAVA<span>✦</span><small>PERFUME</small></a>
+  <nav><a href="#collection">Collection</a><a href="#about">Our Story</a><a href="#contact">Contact</a></nav>
+  <button class="lang" id="language" type="button">اردو / EN</button>
+</header>
+<main>
+  <section class="hero">
+    <div class="wrap hero-content">
+      <div><p class="eyebrow" data-en="THE ART OF FRAGRANCE" data-ur="خوشبو کا فن">THE ART OF FRAGRANCE</p>
+      <h1 data-en="A fragrance that stays with you." data-ur="ایک خوشبو جو آپ کے ساتھ رہے۔">A fragrance that<br>stays with you.</h1>
+      <p class="lead" data-en="Discover expressive scents crafted for every moment." data-ur="ہر لمحے کے لیے خوبصورت اور منفرد خوشبوئیں دریافت کریں۔">Discover expressive scents crafted for every moment.</p>
+      <a class="btn" href="#collection" data-en="Explore Collection" data-ur="کلیکشن دیکھیں">Explore Collection</a></div>
+      <div class="hero-bottle" aria-hidden="true"><div class="cap"></div><div class="neck"></div><div class="bottle"><span>RAVA</span><small>EAU DE PARFUM</small></div></div>
     </div>
-
-    <!-- Perfumes Display Section -->
-    <div class="container mb-5">
-        <h2 class="text-center mb-4 fw-bold text-dark">{{ collections[active_col].name }} کے پرفیومز</h2>
-        <div class="row g-4">
-            {% for p in collections[active_col].perfumes %}
-            <div class="col-md-4">
-                <div class="card product-card h-100">
-                    <img src="{{ p.img }}" class="card-img-top" alt="{{ p.name }}">
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title fw-bold">{{ p.name }}</h5>
-                        <p class="card-text text-muted small flex-grow-1">{{ p.desc }}</p>
-                        
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">سائز منتخب کریں:</label>
-                            <select class="form-select form-select-sm size-select" data-product-id="{{ p.id }}">
-                                <option value="10ml" data-price="{{ p.prices['10ml'] }}">10ml - {{ shop.currency }} {{ p.prices['10ml'] }}</option>
-                                <option value="20ml" data-price="{{ p.prices['20ml'] }}">20ml - {{ shop.currency }} {{ p.prices['20ml'] }}</option>
-                                <option value="50ml" data-price="{{ p.prices['50ml'] }}">50ml - {{ shop.currency }} {{ p.prices['50ml'] }}</option>
-                                <option value="100ml" data-price="{{ p.prices['100ml'] }}">100ml - {{ shop.currency }} {{ p.prices['100ml'] }}</option>
-                            </select>
-                        </div>
-
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="price-display" id="price-{{ p.id }}">{{ shop.currency }} {{ p.prices['10ml'] }}</span>
-                            <button class="btn btn-dark btn-sm" data-bs-toggle="modal" data-bs-target="#orderModal-{{ p.id }}">
-                                <i class="fa-solid fa-cart-shopping me-1"></i> آرڈر کریں
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Modal for Each Perfume -->
-            <div class="modal fade" id="orderModal-{{ p.id }}" tabindex="-1">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <form action="/checkout" method="POST" id="form-{{ p.id }}">
-                            <div class="modal-header bg-dark text-white">
-                                <h5 class="modal-title">{{ p.name }} کا آرڈر</h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                            </div>
-                            <div class="modal-body text-start">
-                                <input type="hidden" name="perfume_name" value="{{ p.name }}">
-                                <input type="hidden" name="size" id="modal-size-{{ p.id }}" value="10ml">
-                                <input type="hidden" name="price" id="modal-price-{{ p.id }}" value="{{ p.prices['10ml'] }}">
-
-                                <div class="alert alert-warning small">
-                                    <i class="fa-solid fa-triangle-exclamation"></i> <strong>نوٹ:</strong> پہلے EasyPaisa پر پیمنٹ کریں (0345-4828100)، پھر ڈلیوری صرف کے پی کے میں کی جائے گی۔
-                                </div>
-
-                                <div class="mb-2">
-                                    <label class="form-label small">منتخب کردہ سائز اور قیمت:</label>
-                                    <input type="text" class="form-control form-control-sm bg-light" id="display-summary-{{ p.id }}" value="10ml - PKR {{ p.prices['10ml'] }}" readonly>
-                                </div>
-                                <div class="mb-2">
-                                    <label class="form-label small">पूरा نام (Full Name)</label>
-                                    <input type="text" class="form-control form-control-sm" name="customer_name" required>
-                                </div>
-                                <div class="mb-2">
-                                    <label class="form-label small">فون نمبر / واٹس ایپ</label>
-                                    <input type="text" class="form-control form-control-sm" name="phone" required>
-                                </div>
-                                <div class="mb-2">
-                                    <label class="form-label small">علاقہ (صرف کے پی کے)</label>
-                                    <select class="form-select form-select-sm" name="region" required>
-                                        <option value="">علاقہ منتخب کریں...</option>
-                                        {% for reg in shop.delivery_regions %}
-                                        <option value="{{ reg }}">{{ reg }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="mb-2">
-                                    <label class="form-label small">مکمل پتہ (Address)</label>
-                                    <textarea class="form-control form-control-sm" name="address" rows="2" required></textarea>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">بند کریں</button>
-                                <button type="submit" class="btn btn-success btn-sm">EasyPaisa آرڈر کنفرم کریں</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-
-    <footer>
-        <div class="container text-center">
-            <h5 class="text-light">{{ shop.name }}</h5>
-            <p class="small mb-1"><i class="fa-solid fa-globe"></i> {{ shop.domain }} | <i class="fa-solid fa-envelope"></i> {{ shop.email }}</p>
-            <p class="small text-warning">EasyPaisa Advanced Payment & KPK Delivery System</p>
-            <p class="mb-0 text-muted">&copy; 2026 {{ shop.name }}. All rights reserved.</p>
-        </div>
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Dynamic price changer based on size selection
-        document.querySelectorAll('.size-select').forEach(select => {
-            select.addEventListener('change', function() {
-                const pid = this.getAttribute('data-product-id');
-                const selectedOption = this.options[this.selectedIndex];
-                const price = selectedOption.getAttribute('data-price');
-                const size = selectedOption.value;
-                
-                // Update price tag
-                document.getElementById('price-' + pid).innerText = 'PKR ' + price;
-                
-                // Update modal hidden inputs and summary
-                document.getElementById('modal-size-' + pid).value = size;
-                document.getElementById('modal-price-' + pid).value = price;
-                document.getElementById('display-summary-' + pid).value = size + ' - PKR ' + price;
-            });
-        });
-    </script>
-</body>
-</html>
+  </section>
+  <section id="collection" class="wrap section">
+    <div class="section-heading"><p class="eyebrow" data-en="OUR SIGNATURE SCENTS" data-ur="ہماری منتخب خوشبوئیں">OUR SIGNATURE SCENTS</p><h2 data-en="Find your signature" data-ur="اپنی پسندیدہ خوشبو منتخب کریں">Find your signature</h2></div>
+    <div class="filters">{% for cat in categories %}<a class="filter {% if selected == cat %}active{% endif %}" href="{{ url_for('home', category=cat) }}#collection">{{ cat }}</a>{% endfor %}</div>
+    <div class="grid">{% for p in products %}
+      <article class="card"><div class="product-art {{ p.color }}"><div class="mini-bottle"><div class="mini-cap"></div><div class="mini-glass"><b>RAVA</b><small>{{ p.name.split(' ')[-1] | upper }}</small></div></div></div>
+      <div class="card-body"><div class="row"><h3>{{ p.name }}</h3><span>{{ p.size }}</span></div><p>{{ p.notes }}</p><div class="row bottom"><strong>{{ currency }} {{ '{:,}'.format(p.price) }}</strong>
+      {% if whatsapp %}<a class="order" target="_blank" rel="noopener noreferrer" href="https://wa.me/{{ whatsapp }}?text={{ ('Hello! I want to order ' ~ p.name ~ ' (' ~ p.size ~ ').') | urlencode }}" data-en="Order on WhatsApp" data-ur="واٹس ایپ پر آرڈر">Order on WhatsApp</a>{% else %}<span class="unavailable" data-en="Orders opening soon" data-ur="آرڈر جلد شروع ہوں گے">Orders opening soon</span>{% endif %}
+      </div></div></article>
+    {% else %}<p>No products in this category.</p>{% endfor %}</div>
+  </section>
+  <section id="about" class="about"><div class="wrap about-inner"><div><p class="eyebrow" data-en="OUR STORY" data-ur="ہمارا تعارف">OUR STORY</p><h2 data-en="Every scent tells a story." data-ur="ہر خوشبو کی اپنی کہانی ہے۔">Every scent tells a story.</h2></div><p data-en="Rava Perfume brings you a thoughtfully selected range of fragrances. Explore, choose and connect with us to place an order." data-ur="راوا پرفیوم آپ کے لیے منتخب خوشبوؤں کی خوبصورت رینج پیش کرتا ہے۔ پسندیدہ خوشبو منتخب کریں اور آرڈر کے لیے رابطہ کریں۔">Rava Perfume brings you a thoughtfully selected range of fragrances. Explore, choose and connect with us to place an order.</p></div></section>
+</main>
+<footer id="contact" class="wrap footer"><div class="logo">RAVA<span>✦</span><small>PERFUME</small></div><div><p data-en="For questions and orders" data-ur="معلومات اور آرڈر کے لیے">For questions and orders</p>{% if whatsapp %}<a target="_blank" rel="noopener noreferrer" href="https://wa.me/{{ whatsapp }}">WhatsApp ↗</a>{% else %}<span data-en="WhatsApp ordering coming soon" data-ur="واٹس ایپ آرڈر جلد دستیاب ہوگا">WhatsApp ordering coming soon</span>{% endif %}</div><p>© 2026 {{ brand }}</p></footer>
+<script>
+const btn=document.getElementById('language');let ur=false;btn.addEventListener('click',()=>{ur=!ur;document.documentElement.lang=ur?'ur':'en';document.documentElement.dir=ur?'rtl':'ltr';document.querySelectorAll('[data-en]').forEach(el=>{el.textContent=el.dataset[ur?'ur':'en']});});
+</script>
+</body></html>
