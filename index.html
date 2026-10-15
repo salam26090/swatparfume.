@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ shop.name }} - مجموعہ جات</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .navbar-brand { font-size: 1.8rem; font-weight: bold; color: #d4af37 !important; }
+        .hero-section { background: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?w=1200&q=80') center/cover; color: #fff; padding: 60px 0; text-align: center; }
+        .collection-tabs { margin-top: -25px; position: relative; z-index: 10; }
+        .collection-btn { font-weight: bold; padding: 12px 20px; border-radius: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin: 5px; }
+        .product-card { border: none; border-radius: 12px; transition: transform 0.3s; background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .product-card:hover { transform: translateY(-5px); }
+        .product-card img { height: 200px; object-fit: cover; border-top-left-radius: 12px; border-top-right-radius: 12px; }
+        .price-display { color: #d4af37; font-size: 1.2rem; font-weight: bold; }
+        footer { background-color: #1a1a1a; color: #ccc; padding: 30px 0; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/"><i class="fa-solid fa-spray-can-sparkles"></i> {{ shop.name }}</a>
+            <span class="text-warning navbar-text small"><i class="fa-solid fa-truck"></i> ڈلیوری: صرف خیبر پختونخواہ (کے پی کے) | پہلے ایڈوانس پیمنٹ (EasyPaisa)</span>
+        </div>
+    </nav>
+
+    <section class="hero-section">
+        <div class="container">
+            <h1 class="display-5 fw-bold">{{ shop.name }} مجموعہ جات</h1>
+            <p class="lead">اپنے پسندیدہ برانڈ کا انتخاب کریں اور مختلف سائز (10ml سے 100ml) میں منگوائیں۔</p>
+        </div>
+    </section>
+
+    <!-- Collection Switcher Tabs -->
+    <div class="container collection-tabs text-center mb-5">
+        <div class="p-3 bg-white rounded shadow-sm d-inline-block">
+            {% for key, col in collections.items() %}
+            <a href="/?col={{ key }}" class="btn {% if active_col == key %}btn-dark{% else %}btn-outline-dark{% endif %} collection-btn">
+                {{ col.name }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Perfumes Display Section -->
+    <div class="container mb-5">
+        <h2 class="text-center mb-4 fw-bold text-dark">{{ collections[active_col].name }} کے پرفیومز</h2>
+        <div class="row g-4">
+            {% for p in collections[active_col].perfumes %}
+            <div class="col-md-4">
+                <div class="card product-card h-100">
+                    <img src="{{ p.img }}" class="card-img-top" alt="{{ p.name }}">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title fw-bold">{{ p.name }}</h5>
+                        <p class="card-text text-muted small flex-grow-1">{{ p.desc }}</p>
+                        
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">سائز منتخب کریں:</label>
+                            <select class="form-select form-select-sm size-select" data-product-id="{{ p.id }}">
+                                <option value="10ml" data-price="{{ p.prices['10ml'] }}">10ml - {{ shop.currency }} {{ p.prices['10ml'] }}</option>
+                                <option value="20ml" data-price="{{ p.prices['20ml'] }}">20ml - {{ shop.currency }} {{ p.prices['20ml'] }}</option>
+                                <option value="50ml" data-price="{{ p.prices['50ml'] }}">50ml - {{ shop.currency }} {{ p.prices['50ml'] }}</option>
+                                <option value="100ml" data-price="{{ p.prices['100ml'] }}">100ml - {{ shop.currency }} {{ p.prices['100ml'] }}</option>
+                            </select>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="price-display" id="price-{{ p.id }}">{{ shop.currency }} {{ p.prices['10ml'] }}</span>
+                            <button class="btn btn-dark btn-sm" data-bs-toggle="modal" data-bs-target="#orderModal-{{ p.id }}">
+                                <i class="fa-solid fa-cart-shopping me-1"></i> آرڈر کریں
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal for Each Perfume -->
+            <div class="modal fade" id="orderModal-{{ p.id }}" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form action="/checkout" method="POST" id="form-{{ p.id }}">
+                            <div class="modal-header bg-dark text-white">
+                                <h5 class="modal-title">{{ p.name }} کا آرڈر</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body text-start">
+                                <input type="hidden" name="perfume_name" value="{{ p.name }}">
+                                <input type="hidden" name="size" id="modal-size-{{ p.id }}" value="10ml">
+                                <input type="hidden" name="price" id="modal-price-{{ p.id }}" value="{{ p.prices['10ml'] }}">
+
+                                <div class="alert alert-warning small">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> <strong>نوٹ:</strong> پہلے EasyPaisa پر پیمنٹ کریں (0345-4828100)، پھر ڈلیوری صرف کے پی کے میں کی جائے گی۔
+                                </div>
+
+                                <div class="mb-2">
+                                    <label class="form-label small">منتخب کردہ سائز اور قیمت:</label>
+                                    <input type="text" class="form-control form-control-sm bg-light" id="display-summary-{{ p.id }}" value="10ml - PKR {{ p.prices['10ml'] }}" readonly>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label small">पूरा نام (Full Name)</label>
+                                    <input type="text" class="form-control form-control-sm" name="customer_name" required>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label small">فون نمبر / واٹس ایپ</label>
+                                    <input type="text" class="form-control form-control-sm" name="phone" required>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label small">علاقہ (صرف کے پی کے)</label>
+                                    <select class="form-select form-select-sm" name="region" required>
+                                        <option value="">علاقہ منتخب کریں...</option>
+                                        {% for reg in shop.delivery_regions %}
+                                        <option value="{{ reg }}">{{ reg }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label small">مکمل پتہ (Address)</label>
+                                    <textarea class="form-control form-control-sm" name="address" rows="2" required></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">بند کریں</button>
+                                <button type="submit" class="btn btn-success btn-sm">EasyPaisa آرڈر کنفرم کریں</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <footer>
+        <div class="container text-center">
+            <h5 class="text-light">{{ shop.name }}</h5>
+            <p class="small mb-1"><i class="fa-solid fa-globe"></i> {{ shop.domain }} | <i class="fa-solid fa-envelope"></i> {{ shop.email }}</p>
+            <p class="small text-warning">EasyPaisa Advanced Payment & KPK Delivery System</p>
+            <p class="mb-0 text-muted">&copy; 2026 {{ shop.name }}. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Dynamic price changer based on size selection
+        document.querySelectorAll('.size-select').forEach(select => {
+            select.addEventListener('change', function() {
+                const pid = this.getAttribute('data-product-id');
+                const selectedOption = this.options[this.selectedIndex];
+                const price = selectedOption.getAttribute('data-price');
+                const size = selectedOption.value;
+                
+                // Update price tag
+                document.getElementById('price-' + pid).innerText = 'PKR ' + price;
+                
+                // Update modal hidden inputs and summary
+                document.getElementById('modal-size-' + pid).value = size;
+                document.getElementById('modal-price-' + pid).value = price;
+                document.getElementById('display-summary-' + pid).value = size + ' - PKR ' + price;
+            });
+        });
+    </script>
+</body>
+</html>
